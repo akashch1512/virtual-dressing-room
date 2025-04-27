@@ -25,12 +25,12 @@ mp_drawing = mp.solutions.drawing_utils
 current_shirt = None
 generated_shirts = []  # Stores shirts generated from API
 
-# API Keys
-SERPAPI_KEY = "05a7c7f3ac3c20eac65dee285bd57a372c42fe04e761a2c5b0237fb77a0c4c29"
-REMOVE_BG_API_KEY = "spUFam3vpqqc8mZUDGJ9RY8z"  # Replace with your actual API key
+SERPAPI_KEY = "258ef6e2c5b5347e763500df9e2c9e1616bd04c7462a82ba0982ab099a883723" # api key from serpapi
+REMOVE_BG_API_KEY = "6Pf6aFYYwLb9oRJ7XnztUVi1"  # Replace with your actual API key from removebg
 
 # Capture video from webcam
 cap = cv2.VideoCapture(0)
+
 
 def remove_background(image_url):
     """Remove background using remove.bg API"""
