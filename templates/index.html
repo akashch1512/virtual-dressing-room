@@ -1,96 +1,535 @@
-<!doctype html>
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Dressing Room</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Virtual Try-On with AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-light: #a29bfe;
+            --primary-dark: #554fd8;
+            --secondary: #00b894;
+            --secondary-light: #55efc4;
+            --dark: #2d3436;
+            --dark-light: #636e72;
+            --light: #f5f6fa;
+            --lighter: #ffffff;
+            --card-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+            --card-shadow-hover: 0 15px 35px rgba(108, 99, 255, 0.25);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #f8f9fa 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        header:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .project-description {
+            color: var(--dark-light);
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         .video-container {
             position: relative;
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: white;
+            padding: 15px;
+            transition: var(--transition);
+            height: fit-content;
         }
-        .video-overlay {
+        
+        .video-container:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .video-container img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .prompt-form {
+            display: flex;
+            gap: 12px;
+            background: white;
+            padding: 1.8rem;
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .prompt-form:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .prompt-form input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .prompt-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        
+        .prompt-form button {
+            padding: 14px 28px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        
+        .prompt-form button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
+        }
+        
+        .shirt-gallery-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .shirt-gallery-container:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
+        
+        .section-title {
+            text-align: center;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        .shirt-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 1.5rem;
+        }
+        
+        .shirt-item {
+            cursor: pointer;
+            border: 2px solid #dfe6e9;
+            border-radius: 14px;
+            padding: 15px;
+            transition: var(--transition);
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shirt-item::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(0, 184, 148, 0.1));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .shirt-item:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--primary-light);
+        }
+        
+        .shirt-item:hover::before {
+            opacity: 1;
+        }
+        
+        .shirt-item.selected {
+            border-color: var(--secondary);
+            background-color: rgba(0, 184, 148, 0.05);
+            position: relative;
+            transform: translateY(-5px);
+        }
+        
+        .shirt-item.selected::after {
+            content: "✓ Selected";
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--secondary);
             color: white;
-            font-size: 1.5rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3);
+        }
+        
+        .shirt-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        
+        .shirt-item:hover img {
+            transform: scale(1.03);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            margin: 2rem 0;
+            transition: var(--transition);
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(108, 99, 255, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: var(--dark-light);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .loading-dots::after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 5px 10px rgba(108, 99, 255, 0.3));
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            header {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .prompt-form {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+            
+            .shirt-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+        
+        /* Floating animation for selected shirt */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .shirt-item.selected {
+            animation: float 3s ease-in-out infinite;
         }
     </style>
 </head>
-
-<body class="bg-gray-900 text-gray-100">
-    <header class="bg-gray-800 py-4">
-        <div class="container mx-auto px-4 flex items-center">
-            <img src="{{url_for('static', filename='images/logo.png')}}" class="h-10 w-10 rounded-full">
-            <h1 class="ml-3 text-xl font-semibold">Virtual Dressing Room</h1>
-        </div>
-    </header>
-
-    <main class="container mx-auto px-4 py-8">
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold mb-2">Real-Time Virtual Try-On</h2>
-            <p class="text-gray-400">See how clothes look on you in real-time</p>
-        </div>
-
-        <div class="video-container bg-black rounded-lg overflow-hidden shadow-lg">
-            {% if url_for('video_feed') %}
-                <img src="{{ url_for('video_feed') }}" width="640" height="480" class="w-full">
-            {% else %}
-                <div class="video-overlay">
-                    <div class="text-center p-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <p>Camera feed will appear here</p>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="mt-8 text-center">
-                <label class="block mb-4">
-                    <span class="block text-sm font-medium text-gray-300 mb-2">Select Clothing Image</span>
-                    <input type="file" name="cloth" accept="image/*" class="block w-full text-sm text-gray-400
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-blue-600 file:text-white
-                        hover:file:bg-blue-700">
-                </label>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
-                    Start Virtual Try-On
-                </button>
-            </form>
-        </div>
-
-        {% if op %}
-        <div class="mt-12 text-center">
-            <h3 class="text-xl font-semibold mb-4">Your Virtual Try-On Result</h3>
-            <div class="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
-                <img src="data:image/png;base64,{{ op }}" class="w-full rounded border-2 border-blue-500">
+<body>
+    <div class="container">
+        <header class="animate__animated animate__fadeIn">
+            <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <rect x="10" y="10" width="80" height="80" rx="15" fill="#f0f0f0" stroke="#6c63ff" stroke-width="2"/>
+                <circle cx="50" cy="50" r="20" fill="url(#gradient)"/>
+                <rect x="40" y="60" width="20" height="30" fill="#6c63ff" opacity="0.8"/>
+                <line x1="50" y1="60" x2="50" y2="90" stroke="#6c63ff" stroke-width="2" stroke-linecap="round"/>
+                <line x1="40" y1="75" x2="60" y2="75" stroke="#6c63ff" stroke-width="2" stroke-linecap="round"/>
+                <line x1="50" y1="90" x2="40" y2="95" stroke="#6c63ff" stroke-width="2" stroke-linecap="round"/>
+                <line x1="50" y1="90" x2="60" y2="95" stroke="#6c63ff" stroke-width="2" stroke-linecap="round"/>
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#6c63ff" />
+                        <stop offset="100%" stop-color="#00b894" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1>AI-Powered Virtual Try-On</h1>
+            <p class="project-description">
+                Experience the future of fashion with our cutting-edge system that lets you visualize how various shirts will look on you in real-time. Powered by advanced computer vision and AI, our virtual try-on technology seamlessly overlays selected clothing items onto your live camera feed, offering a realistic and interactive preview. Ideal for online shopping or exploring new fashion trends, this innovation brings the fitting room directly to you!
+            </p>
+            
+        </header>
+        
+        <div class="main-content">
+            <div class="video-container animate__animated animate__fadeInLeft">
+                <img src="{{ url_for('video_feed') }}" width="600" height="700" alt="Live try-on preview">
             </div>
-            <button onclick="window.location.reload()" class="mt-4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded">
-                Try Again
-            </button>
+            
+            <div class="controls-container animate__animated animate__fadeInRight">
+                <div class="prompt-form">
+                    <input type="text" id="prompt-input" placeholder="Describe your ideal shirt (e.g. 'blue denim', 'graphic tee', 'formal shirt')">
+                    <button onclick="generateShirts()">Generate</button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">Generating your custom shirt designs<span class="loading-dots"></span></p>
+                    <p class="loading-text">This may take a few moments</p>
+                </div>
+            </div>
         </div>
-        {% endif %}
-    </main>
+        
+        <div class="shirt-gallery-container animate__animated animate__fadeInUp">
+            <h2 class="section-title">Generated Designs</h2>
+            <div class="shirt-gallery" id="shirt-gallery">
+                <!-- Generated shirts will appear here -->
+            </div>
+        </div>
+    </div>
 
-    <footer class="bg-gray-800 py-6 mt-12">
-        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
-            <p>© 2023 Virtual Dressing Room | Powered by Deep Learning</p>
-        </div>
-    </footer>
+    <script>
+        function generateShirts() {
+            const prompt = document.getElementById('prompt-input').value.trim();
+            if (!prompt) {
+                alert('Please describe the shirt you want to try on');
+                return;
+            }
+            
+            const gallery = document.getElementById('shirt-gallery');
+            const loading = document.getElementById('loading');
+            
+            gallery.innerHTML = '';
+            loading.style.display = 'block';
+            
+            fetch('/generate_shirts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `prompt=${encodeURIComponent(prompt)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (!data.success) {
+                    alert(data.message);
+                    return;
+                }
+                
+                gallery.innerHTML = '';
+                
+                if (data.shirts.length === 0) {
+                    gallery.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: var(--dark-light); padding: 2rem;">No shirts could be generated. Try a different description.</p>';
+                    return;
+                }
+                
+                data.shirts.forEach((shirt, index) => {
+                    const shirtItem = document.createElement('div');
+                    shirtItem.className = 'shirt-item animate__animated animate__fadeIn';
+                    shirtItem.style.animationDelay = `${index * 0.1}s`;
+                    shirtItem.id = `shirt-${shirt.id}`;
+                    shirtItem.onclick = () => selectShirt(shirt.id);
+                    
+                    shirtItem.innerHTML = `
+                        <img src="data:image/png;base64,${shirt.image}" alt="Shirt design ${index + 1}">
+                    `;
+                    
+                    gallery.appendChild(shirtItem);
+                });
+                
+                // Select first shirt by default
+                if (data.shirts.length > 0) {
+                    setTimeout(() => {
+                        selectShirt(data.shirts[0].id);
+                    }, data.shirts.length * 100 + 300);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                console.error('Error:', error);
+                alert('Failed to generate shirts. Please try again.');
+            });
+        }
+        
+        function selectShirt(shirtId) {
+            // Update UI
+            document.querySelectorAll('.shirt-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            const selectedItem = document.getElementById(`shirt-${shirtId}`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+            }
+            
+            // Send selection to server
+            fetch('/select_shirt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `shirt_id=${shirtId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error(data.message);
+                }
+            });
+        }
+        
+        // Handle Enter key press
+        document.getElementById('prompt-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateShirts();
+            }
+        });
+        
+        // Add initial animation class to elements
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelectorAll('.animate__animated').forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 100);
+        });
+    </script>
 </body>
 </html>
