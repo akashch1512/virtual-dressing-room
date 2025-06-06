@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=600, initial-scale=1.0" />
     <title>Virtual Try-On with AI</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -161,6 +161,7 @@
         grid-template-columns: 1fr 1fr;
         gap: 2.5rem;
         margin-bottom: 3rem;
+        position: relative;
       }
 
       @media (max-width: 900px) {
@@ -511,7 +512,61 @@
         color: var(--dark-light);
         font-size: 0.9rem;
       }
+
+      /* Fit Score Display Styles */
+      .fit-score-display {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+        border: 1px solid rgba(108, 99, 255, 0.2);
+        backdrop-filter: blur(5px);
+        transition: var(--transition);
+      }
+
+      .fit-score-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.5rem;
+        box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+        margin-bottom: 8px;
+        transition: background 0.4s;
+      }
+
+      .fit-score-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      /* Animation for score changes */
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+
+      .score-update {
+        animation: pulse 0.5s ease;
+      }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -643,6 +698,14 @@
           />
         </div>
 
+        <!-- Fit score display -->
+        <div class="fit-score-display" id="fit-score-display">
+          <div class="fit-score-circle">
+            <span id="fit-score-value">0</span>%
+          </div>
+          <div class="fit-score-label">FIT SCORE</div>
+        </div>
+
         <div class="controls-container animate__animated animate__fadeInRight">
           <div class="prompt-form">
             <input
@@ -674,6 +737,37 @@
     </div>
 
     <script>
+      // Handle real-time fit score updates
+      const socket = io.connect(
+        window.location.protocol + "//" + document.domain + ":" + location.port
+      );
+
+      socket.on("fit_score_update", function (data) {
+        const scoreElement = document.getElementById("fit-score-value");
+        const circle = document.querySelector(".fit-score-circle");
+
+        // Update the score value
+        scoreElement.textContent = Math.round(data.score);
+
+        // Add visual feedback
+        circle.classList.add("score-update");
+        setTimeout(() => {
+          circle.classList.remove("score-update");
+        }, 500);
+
+        // Change color based on score
+        if (data.score >= 80) {
+          circle.style.background =
+            "linear-gradient(135deg, var(--secondary), var(--secondary-light))";
+        } else if (data.score >= 50) {
+          circle.style.background =
+            "linear-gradient(135deg, var(--primary), var(--primary-light))";
+        } else {
+          circle.style.background =
+            "linear-gradient(135deg, #ff7675, #d63031)";
+        }
+      });
+
       function generateShirts() {
         const prompt = document.getElementById("prompt-input").value.trim();
         if (!prompt) {
