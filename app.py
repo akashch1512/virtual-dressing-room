@@ -32,7 +32,7 @@ generated_shirts = []  # Stores shirts generated from API
 current_fit_score = 0  # Track current fit score
 
 SERPAPI_KEY = "258ef6e2c5b5347e763500df9e2c9e1616bd04c7462a82ba0982ab099a883723"
-REMOVE_BG_API_KEY = "BRvJ96jcvFbdtzd3MaVCzaRc"
+REMOVE_BG_API_KEY = "ed1xV73s8uNAccLCfFnu2eVQ"
 
 # Capture video from webcam
 cap = cv2.VideoCapture(0)
@@ -305,7 +305,10 @@ def generate_shirts():
     if not prompt:
         return jsonify({'success': False, 'message': 'Please enter a prompt'})
 
-    search_query = f"{prompt} only want 3d images! ,men's shirt, high resolution, single shirt image only, only image must be there in a photo, no body parts or backgrounds, isolated shirt, high-definition, full size image, focused on fabric texture and details, no logos or distractions"
+    # search_query = f"{prompt} only want 3d images! , high resolution, single shirt image only, only image must be there in a photo, no body parts or backgrounds, isolated shirt, high-definition, full size image, focused on fabric texture and details, no logos or distractions"
+    search_query = f"{prompt} only — isolated 3D high-resolution image, full-size, centered, no background, no body parts, no models, no props, no logos — just the clothing item. Fabric texture, folds, and details must be sharp and clear. Focus on realism and textile quality. Clothing item should be cleanly cropped and well-lit, studio-style"
+
+    
     params = {
         "engine": "google",
         "q": search_query,
